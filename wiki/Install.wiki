@@ -1,6 +1,4 @@
-#summary One-sentence summary of this page.
 #labels Phase-Deploy
-
 = Install =
  * Install [http://www.python.org/ Python]
  * Install [http://www.wxpython.org/ wxPython] for GUI version

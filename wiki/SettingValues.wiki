@@ -4,39 +4,37 @@
   * CAD_UNIT
   * DRILL_UNIT
   * EDGE_UNIT
-  * IN_INCH_FLAG
-  * OUT_INCH_FLAG
+  * IN_INCH_FLAG : If unit of input file is INCH, set 1 
+  * OUT_INCH_FLAG : If unit of output file is INCH, set 1 
 ===For Cutting machine===
-  * INI_X
-  * INI_Y
-  * INI_Z
-  * MOVE_HEIGHT
-  * XY_SPEED
-  * Z_SPEED
+  * INI_X,INI_Y,INI_Z : Start position of the cutting tool 
+  * MOVE_HEIGHT : Moving height (without cutting) 
+  * XY_SPEED : In-plane cutting speed 
+  * Z_SPEED : Z axis cutting speed 
 ===For Cutting and Dill===
-  * CUT_DEPTH
-  * TOOL_D
-  * DRILL_D
-  * DRILL_SPEED
-  * DRILL_DEPTH
-  * EDGE_TOOL_D
-  * EDGE_DEPTH
-  * EDGE_SPEED
-  * EDGE_Z_SPEED
-  * Z_STEP
+  * CUT_DEPTH : Pattern cutting depth
+  * TOOL_D : Diameter of the cutting tool
+  * DRILL_D : Drill diameter 
+  * DRILL_SPEED : Drill down speed 
+  * DRILL_DEPTH : Drill depth 
+  * EDGE_TOOL_D : Edge cutting tool diameter 
+  * EDGE_DEPTH : Edge cutting depth
+  * EDGE_SPEED : Edge cutting speed
+  * EDGE_Z_SPEED : Edge down speed
+  * Z_STEP : z step
 ===For Drawing===
-  * GERBER_COLOR
-  * DRILL_COLOR
-  * EDGE_COLOR
-  * CONTOUR_COLOR
+  * GERBER_COLOR : Pattern color
+  * DRILL_COLOR : Drill color
+  * EDGE_COLOR : Edge color
+  * CONTOUR_COLOR : Contour color
 ===For G-code data===
-  * LEFT_X
-  * LOWER_Y
-  * MCODE_FLAG
-  * MERGE_DRILL_DATA
-  * GERBER_EXT
-  * DRILL_EXT
-  * EDGE_EXT
-  * GCODE_EXT
-  * GDRILL_EXT
-  * GEDGE_EXT
+  * LEFT_X : Left side of the converted G code will be shifted to LEFT_X 
+  * LOWER_Y : Bottom of the converted G code will be shifted to LOWER_Y 
+  * MCODE_FLAG : If you want insert M code (ex. spindle on), set 1 
+  * MERGE_DRILL_DATA : If you want to merge drill data and pattern data, set 1. 
+  * GERBER_EXT : Extension of the patern cutting gerber files
+  * DRILL_EXT : Extension of the drill files
+  * EDGE_EXT : Extension of the edge cutting files
+  * GCODE_EXT : Extension of the cutting G-code files
+  * GDRILL_EXT : Extension of the drill G-code files
+  * GEDGE_EXT : Extention of the edge G-code files

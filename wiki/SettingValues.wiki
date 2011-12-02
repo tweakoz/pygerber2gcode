@@ -1,0 +1,42 @@
+=Setting values in "pyg2g.conf"=
+
+===For CAD datas==
+  * CAD_UNIT
+  * DRILL_UNIT
+  * EDGE_UNIT
+  * IN_INCH_FLAG
+  * OUT_INCH_FLAG
+===For Cutting machine===
+  * INI_X
+  * INI_Y
+  * INI_Z
+  * MOVE_HEIGHT
+  * XY_SPEED
+  * Z_SPEED
+===For Cutting and Dill===
+  * CUT_DEPTH
+  * TOOL_D
+  * DRILL_D
+  * DRILL_SPEED
+  * DRILL_DEPTH
+  * EDGE_TOOL_D
+  * EDGE_DEPTH
+  * EDGE_SPEED
+  * EDGE_Z_SPEED
+  * Z_STEP
+===For Drawing===
+  * GERBER_COLOR
+  * DRILL_COLOR
+  * EDGE_COLOR
+  * CONTOUR_COLOR
+===For G-code data===
+  * LEFT_X
+  * LOWER_Y
+  * MCODE_FLAG
+  * MERGE_DRILL_DATA
+  * GERBER_EXT
+  * DRILL_EXT
+  * EDGE_EXT
+  * GCODE_EXT
+  * GDRILL_EXT
+  * GEDGE_EXT

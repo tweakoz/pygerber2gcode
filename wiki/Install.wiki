@@ -4,31 +4,3 @@
  * Install [http://www.wxpython.org/ wxPython] for GUI version
   * There are Ubuntu and Debian official package 
  * Download pygerber2gcode.py (GUI version) and pyg2g.conf (configure file) from this site.
-
-= Setting =
-
-Initial setup
- * INI_X, INI_Y, INI_Z : Start position of the cutting tool
- * MOVE_HEIGHT : Moving height (Without cutting)
-
-For pattern cutting
- * CUT_DEPTH : Pattern cutting depth
- * TOOL_D : Cutting tool diameter
- * XY_SPEED : In-plane cutting speed
- * Z_SPEED : Z axis cutting speed
-
-For hole drilling
- * DRILL_D : Drill diameter
- * DRILL_SPEED : Drill down speed
- * DRILL_DEPTH : Drill depth
- * Z_STEP : Z axis cutting step for edge cutting and hole drilling
-
-For unit change
- * OUT_INCH_FLAG : If unit of output file is INCH, set 1
- * IN_INCH_FLAG :  If unit of input file is INCH, set 1
-
-For G code generation
- * MCODE_FLAG : If you want insert M code (ex. spindle on), set 1
- * MERGE_DRILL_DATA : If you want to merge drill data and pattern data, set 1.
- * LEFT_X : Left side of the converted G code will be shifted to LEFT_X
- * LOWER_Y : Bottom of the converted G code will be shifted to LOWER_Y

@@ -1,0 +1,71 @@
+=「pyg2g_cui.conf」の設定=
+
+===ガーバ－データ用===
+  * GERBER_DIR : ガーバーファイルなどがあるディレクトリ
+  * FRONT_FILE : 表面のガーバーファイル
+  * BACK_FILE : 裏面のガーバーファイル
+  * DRILL_FILE : ドリルファイル
+  * EDGE_FILE : エッジ（外周）ファイル
+  * CAD_UNIT : CADの単位。 デフォルトはMIL/10（1/10000インチ)
+  * DRILL_UNIT : CADでのドリルデータの単位。 デフォルトはインチ
+  * EDGE_UNIT :  エッジの単位。 デフォルトはMIL/10
+  * IN_INCH_FLAG : 入力ファイルの単位がインチなら「1」。 「0」にすると MM
+
+===CNCマシン用===
+  * INI_X, INI_Y, INI_Z : ツールの初期位置。カットを始める前の位置を入れる。 
+  * MOVE_HEIGHT : ツール移動時の高さ。
+  * XY_SPEED : XY平面の切削速度
+  * Z_SPEED : Z方向の切削速度 
+  * LEFT_X : パターンの左端をこの位置にする
+  * LOWER_Y : パターンの下端をこの位置にする 
+  * DRILL_SPEED : ドリルを下げるスピード 
+  * DRILL_DEPTH : ドリルの深さ
+  * CUT_DEPTH : パターンの切削深さ 
+  * TOOL_D : パターン切削用ツールの直径
+  * DRILL_D : ドリルの直径 
+  * EDGE_TOOL_D : エッジカット用ツールの直径 
+  * EDGE_DEPTH : エッジカットの深さ
+  * EDGE_SPEED : エッジカットのスピード 
+  * EDGE_Z_SPEED : エッジカット用ツールを下ろすスピード
+  * MERGE_DRILL_DATA : パターンとドリルのデータを1つのファイルにするときは「１」
+  * Z_STEP : Z方向のステップ。
+
+===G-codeへの変換用===
+  * MIRROR_FRONT : 表面をミラー反転するときは「１」
+  * MIRROR_BACK :  裏面をミラー反転するときは「１」
+  * MIRROR_DRILL :  ドリルをミラー反転するときは「１」
+  * MIRROR_EDGE : エッジをミラー反転するときは「１」
+  * ROT_ANG : 回転するときは角度（度）設定
+
+  * CUT_ALL_FRONT : 表面の銅箔でない部分を大きく削りたいとき。このページの下のほうを参照
+  * CUT_ALL_BACK :  現在未対応
+  * CUT_STEP_R : カットステップ比 ＝(TOOL_D - overwrap)/TOOL_D
+  * CUT_MAX : 最高で何回削るか
+
+===G-code出力用===
+  * MCODE_FLAG : Mコード(例「M03」など)を入れるときは「１」 
+  * OUT_INCH_FLAG : 出力データの単位がインチなら「１」。「０」にするとMM
+  * OUT_DIR : G-codeのディレクトリ
+  * OUT_FRONT_FILE : 表面のG-codeのファイル名
+  * OUT_BACK_FILE : BackのG-codeのファイル名
+  * OUT_DRILL_FILE : DrillのG-codeのファイル名
+  * OUT_EDGE_FILE : EdgeのG-codeのファイル名
+===For future (GUI version)===
+  * GERBER_COLO: N/A for CUI version
+  * DRILL_COLOR: N/A for CUI version
+  * EDGE_COLOR: N/A for CUI version
+  * CONTOUR_COLOR: N/A for CUI version
+  * GERBER_EXT: N/A for CUI version
+  * DRILL_EXT: N/A for CUI version
+  * EDGE_EXT: N/A for CUI version
+  * GCODE_EXT: N/A for CUI version
+  * GDRILL_EXT: N/A for CUI version
+  * GEDGE_EXT: N/A for CUI version
+
+==CUT_ALLに関して===
+===CADでのパターン===
+https://lh6.googleusercontent.com/-JuC4gSDeZB4/UhHlYZqgBUI/AAAAAAAAAGA/xhRqwSd8Pqk/w375-h492-no/test_pattern.png
+
+===[http://openscam.com/ OpenSCAM]によるCNCの切削シミュレーション結果===
+CUT_MAX = 30
+https://lh3.googleusercontent.com/-hQqykbgYcSM/UhHldvZawsI/AAAAAAAAAGI/vUEiZOMpDpE/w787-h550-no/cut_all30loops.png

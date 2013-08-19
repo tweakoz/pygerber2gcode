@@ -62,3 +62,11 @@
   * GCODE_EXT: N/A for CUI version
   * GDRILL_EXT: N/A for CUI version
   * GEDGE_EXT: N/A for CUI version
+
+==About CUT_ALL===
+===CAD Pattern===
+https://lh6.googleusercontent.com/-JuC4gSDeZB4/UhHlYZqgBUI/AAAAAAAAAGA/xhRqwSd8Pqk/w375-h492-no/test_pattern.png
+
+===CNC simulation result by OpenSCAM===
+CUT_MAX = 30
+https://lh3.googleusercontent.com/-hQqykbgYcSM/UhHldvZawsI/AAAAAAAAAGI/vUEiZOMpDpE/w787-h550-no/cut_all30loops.png

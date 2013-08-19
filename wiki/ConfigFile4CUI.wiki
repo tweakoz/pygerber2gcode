@@ -1,0 +1,64 @@
+=Setting values in "pyg2g_cui.conf"=
+
+===For Gerber data===
+  * GERBER_DIR : Gerbar date dirctory
+  * FRONT_FILE : Front pattarn data file
+  * BACK_FILE : Back pattarn data file
+  * DRILL_FILE : Drill pattarn data file
+  * EDGE_FILE : Edge pattarn data file
+  * CAD_UNIT : Unit of the pattern data on the PCB CAD. Default MIL/10
+  * DRILL_UNIT : Unit of the drill data on the PCB CAD. Default inch
+  * EDGE_UNIT :  Unit of the edge data on the PCB CAD. Default MIL/10
+  * IN_INCH_FLAG : If the unit of output files are INCH, set 1. Set 0 for MM
+
+===For Cutting machine===
+  * INI_X, INI_Y, INI_Z : Start (Initial) position of the cutting tool. For example, home position (0,0,0).
+  * MOVE_HEIGHT : Moving height (without cutting).
+  * XY_SPEED : In-plane cutting speed 
+  * Z_SPEED : Z axis cutting speed 
+  * LEFT_X : Left side of the converted G code will be shifted to LEFT_X.
+  * LOWER_Y : Bottom of the converted G code will be shifted to LOWER_Y 
+  * DRILL_SPEED : Drill down speed 
+  * DRILL_DEPTH : Drill depth 
+  * CUT_DEPTH : Pattern cutting depth 
+  * TOOL_D : Diameter of the cutting tool 
+  * DRILL_D : Drill diameter 
+  * EDGE_TOOL_D : Edge cutting tool diameter 
+  * EDGE_DEPTH : Edge cutting depth 
+  * EDGE_SPEED : Edge cutting speed 
+  * EDGE_Z_SPEED : Edge down speed 
+  * MERGE_DRILL_DATA : If you want to merge drill data and pattern data, set 1. 
+  * Z_STEP : cuting step in z axis. 
+
+===For data convert===
+  * MIRROR_FRONT :  if you want MIRROR the frong pattarn, set 1
+  * MIRROR_BACK :  if you want MIRROR the back pattarn, set 1
+  * MIRROR_DRILL :  if you want MIRROR the drill pattarn, set 1
+  * MIRROR_EDGE : if you want MIRROR the edge pattarn, set 1
+  * ROT_ANG : Rotation angle (degree) of the converted data. 
+
+  * CUT_ALL_FRONT : if you want cut all space, set 1
+  * CUT_ALL_BACK :  N/A (for future version)
+  * CUT_STEP_R : cutting step ratio. = (TOOL_D - overwrap)/TOOL_D
+  * CUT_MAX : Max number of the cutting loop.
+
+===For G-code output===
+  * MCODE_FLAG : If you want insert M code (ex. spindle on "M03"), set 1 
+  * OUT_INCH_FLAG : If the unit of input files are INCH, set 1. Set 0 for MM
+  * OUT_DIR : G-code data directory
+  * OUT_FRONT_FILE : Front pattarn g-code file
+  * OUT_BACK_FILE : Back pattarn g-code file
+  * OUT_DRILL_FILE : Drill pattarn g-code file
+  * OUT_EDGE_FILE : Edge pattarn g-code file
+
+===For future (GUI version)===
+  * GERBER_COLO: N/A for CUI version
+  * DRILL_COLOR: N/A for CUI version
+  * EDGE_COLOR: N/A for CUI version
+  * CONTOUR_COLOR: N/A for CUI version
+  * GERBER_EXT: N/A for CUI version
+  * DRILL_EXT: N/A for CUI version
+  * EDGE_EXT: N/A for CUI version
+  * GCODE_EXT: N/A for CUI version
+  * GDRILL_EXT: N/A for CUI version
+  * GEDGE_EXT: N/A for CUI version

@@ -1,11 +1,11 @@
-=Setting values in "pyg2g_cui.conf"=
+F=Setting values in "pyg2g_cui.conf"=
 
 ===For Gerber data===
-  * GERBER_DIR : Gerbar date dirctory
-  * FRONT_FILE : Front pattarn data file name
-  * BACK_FILE : Back pattarn data file name
-  * DRILL_FILE : Drill pattarn data file name
-  * EDGE_FILE : Edge pattarn data file name
+  * GERBER_DIR : Gerber date directory
+  * FRONT_FILE : Front pattern data file name
+  * BACK_FILE : Back pattern data file name
+  * DRILL_FILE : Drill pattern data file name
+  * EDGE_FILE : Edge pattern data file name
   * CAD_UNIT : Unit of the pattern data on the PCB CAD. Default MIL/10
   * DRILL_UNIT : Unit of the drill data on the PCB CAD. Default inch
   * EDGE_UNIT :  Unit of the edge data on the PCB CAD. Default MIL/10
@@ -28,13 +28,13 @@
   * EDGE_SPEED : Edge cutting speed 
   * EDGE_Z_SPEED : Edge down speed 
   * MERGE_DRILL_DATA : If you want to merge drill data and pattern data, set 1. 
-  * Z_STEP : cuting step in z axis. 
+  * Z_STEP : cutting step in z axis. 
 
 ===For data convert===
-  * MIRROR_FRONT :  if you want MIRROR the frong pattarn, set 1
-  * MIRROR_BACK :  if you want MIRROR the back pattarn, set 1
-  * MIRROR_DRILL :  if you want MIRROR the drill pattarn, set 1
-  * MIRROR_EDGE : if you want MIRROR the edge pattarn, set 1
+  * MIRROR_FRONT :  if you want MIRROR the front pattern, set 1
+  * MIRROR_BACK :  if you want MIRROR the back pattern, set 1
+  * MIRROR_DRILL :  if you want MIRROR the drill pattern, set 1
+  * MIRROR_EDGE : if you want MIRROR the edge pattern, set 1
   * ROT_ANG : Rotation angle (degree) of the converted data. 
 
   * CUT_ALL_FRONT : if you want scrape all non-copper area, set 1. See bottom of this page.
@@ -46,10 +46,10 @@
   * MCODE_FLAG : If you want insert M code (ex. spindle on "M03"), set 1 
   * OUT_INCH_FLAG : If the unit of input files are INCH, set 1. Set 0 for MM
   * OUT_DIR : G-code data directory
-  * OUT_FRONT_FILE : Front pattarn g-code file name
-  * OUT_BACK_FILE : Back pattarn g-code file name
-  * OUT_DRILL_FILE : Drill pattarn g-code file name
-  * OUT_EDGE_FILE : Edge pattarn g-code file name
+  * OUT_FRONT_FILE : Front pattern g-code file name
+  * OUT_BACK_FILE : Back pattern g-code file name
+  * OUT_DRILL_FILE : Drill pattern g-code file name
+  * OUT_EDGE_FILE : Edge pattern g-code file name
 
 ===For future (GUI version)===
   * GERBER_COLO: N/A for CUI version

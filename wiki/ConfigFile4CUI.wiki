@@ -2,10 +2,10 @@
 
 ===For Gerber data===
   * GERBER_DIR : Gerbar date dirctory
-  * FRONT_FILE : Front pattarn data file
-  * BACK_FILE : Back pattarn data file
-  * DRILL_FILE : Drill pattarn data file
-  * EDGE_FILE : Edge pattarn data file
+  * FRONT_FILE : Front pattarn data file name
+  * BACK_FILE : Back pattarn data file name
+  * DRILL_FILE : Drill pattarn data file name
+  * EDGE_FILE : Edge pattarn data file name
   * CAD_UNIT : Unit of the pattern data on the PCB CAD. Default MIL/10
   * DRILL_UNIT : Unit of the drill data on the PCB CAD. Default inch
   * EDGE_UNIT :  Unit of the edge data on the PCB CAD. Default MIL/10
@@ -46,10 +46,10 @@
   * MCODE_FLAG : If you want insert M code (ex. spindle on "M03"), set 1 
   * OUT_INCH_FLAG : If the unit of input files are INCH, set 1. Set 0 for MM
   * OUT_DIR : G-code data directory
-  * OUT_FRONT_FILE : Front pattarn g-code file
-  * OUT_BACK_FILE : Back pattarn g-code file
-  * OUT_DRILL_FILE : Drill pattarn g-code file
-  * OUT_EDGE_FILE : Edge pattarn g-code file
+  * OUT_FRONT_FILE : Front pattarn g-code file name
+  * OUT_BACK_FILE : Back pattarn g-code file name
+  * OUT_DRILL_FILE : Drill pattarn g-code file name
+  * OUT_EDGE_FILE : Edge pattarn g-code file name
 
 ===For future (GUI version)===
   * GERBER_COLO: N/A for CUI version

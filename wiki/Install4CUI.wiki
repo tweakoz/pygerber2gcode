@@ -1,0 +1,9 @@
+= Install =
+ * Install [http://pypy.org/ pypy]
+  * Strongly recommend. About 10 times faster than python  
+  * or install [http://www.python.org/ Python]
+ * Download pygerber2gcode_cui.py, gerber_merge.py and pyg2g_cui.conf (configure file sample) from this site.
+ * Put these files on same directory.
+ * run "pypy pygerber2gcode_cui.py pyg2g_cui.conf"
+  * or run "python pygerber2gcode_cui.py pyg2g_cui.conf"
+  * Linux:"$ pygerber2gcode_cui.py pyg2g_cui.conf"

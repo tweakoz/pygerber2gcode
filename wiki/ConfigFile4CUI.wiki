@@ -37,7 +37,7 @@
   * MIRROR_EDGE : if you want MIRROR the edge pattarn, set 1
   * ROT_ANG : Rotation angle (degree) of the converted data. 
 
-  * CUT_ALL_FRONT : if you want scrape all non-copper area, set 1
+  * CUT_ALL_FRONT : if you want scrape all non-copper area, set 1. See bottom of this page.
   * CUT_ALL_BACK :  N/A (for future version)
   * CUT_STEP_R : cutting step ratio. = (TOOL_D - overwrap)/TOOL_D
   * CUT_MAX : Max number of the cutting loop.
@@ -67,6 +67,6 @@
 ===CAD Pattern===
 https://lh6.googleusercontent.com/-JuC4gSDeZB4/UhHlYZqgBUI/AAAAAAAAAGA/xhRqwSd8Pqk/w375-h492-no/test_pattern.png
 
-===CNC simulation result by OpenSCAM===
+===CNC simulation result by [http://openscam.com/ OpenSCAM]===
 CUT_MAX = 30
 https://lh3.googleusercontent.com/-hQqykbgYcSM/UhHldvZawsI/AAAAAAAAAGI/vUEiZOMpDpE/w787-h550-no/cut_all30loops.png

@@ -1,4 +1,4 @@
-F=Setting values in "pyg2g_cui.conf"=
+=Setting values in "pyg2g_cui.conf"=
 
 ===For Gerber data===
   * GERBER_DIR : Gerber date directory

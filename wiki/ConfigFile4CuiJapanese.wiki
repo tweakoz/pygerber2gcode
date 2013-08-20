@@ -15,7 +15,8 @@
   * INI_X, INI_Y, INI_Z : ツールの初期位置。カットを始める前の位置を入れる。 
   * MOVE_HEIGHT : ツール移動時の高さ。
   * XY_SPEED : XY平面の切削速度
-  * Z_SPEED : Z方向の切削速度 
+  * Z_SPEED : Z方向の切削速度
+  * PATTERN_SHIFT : パターンを(LEFT_X,LOWER_Y)にずらす場合に「１」 
   * LEFT_X : パターンの左端をこの位置にする
   * LOWER_Y : パターンの下端をこの位置にする 
   * DRILL_SPEED : ドリルを下げるスピード 

@@ -16,6 +16,7 @@
   * MOVE_HEIGHT : Moving height (without cutting).
   * XY_SPEED : In-plane cutting speed 
   * Z_SPEED : Z axis cutting speed 
+  * PATTERN_SHIFT : Set "1" for pattern shift to (LEFT_X,LOWER_Y) 
   * LEFT_X : Left side of the converted G code will be shifted to LEFT_X.
   * LOWER_Y : Bottom of the converted G code will be shifted to LOWER_Y 
   * DRILL_SPEED : Drill down speed 

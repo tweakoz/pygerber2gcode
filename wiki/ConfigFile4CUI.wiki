@@ -6,46 +6,47 @@
   * BACK_FILE : Back pattern data file name
   * DRILL_FILE : Drill pattern data file name
   * EDGE_FILE : Edge pattern data file name
-  * CAD_UNIT : Unit of the pattern data on the PCB CAD. Default MIL/10
+  * CAD_UNIT : Unit of the pattern data on the PCB CAD. Default MIL/10 = Inch/10000
   * DRILL_UNIT : Unit of the drill data on the PCB CAD. Default inch
-  * EDGE_UNIT :  Unit of the edge data on the PCB CAD. Default MIL/10
-  * IN_INCH_FLAG : If the unit of output files are INCH, set 1. Set 0 for MM
+  * EDGE_UNIT :  Unit of the edge data on the PCB CAD. Default MIL/10 = Inch/10000
+  * IN_INCH_FLAG : If the unit of output files are INCH, set 1. Set 0 for MM. Default 1
 
 ===For Cutting machine===
+  * SET_INI : If you want set initial position of the tool (INI_X, INI_Y, INI_Z), set 1. Default 1
   * INI_X, INI_Y, INI_Z : Start (Initial) position of the cutting tool. For example, home position (0,0,0).
   * MOVE_HEIGHT : Moving height (without cutting).
   * XY_SPEED : In-plane cutting speed 
   * Z_SPEED : Z axis cutting speed 
-  * PATTERN_SHIFT : Set "1" for pattern shift to (LEFT_X,LOWER_Y) 
+  * PATTERN_SHIFT : Set "1" for pattern shift to (LEFT_X,LOWER_Y). Default 1
   * LEFT_X : Left side of the converted G code will be shifted to LEFT_X.
   * LOWER_Y : Bottom of the converted G code will be shifted to LOWER_Y 
-  * DRILL_SPEED : Drill down speed 
-  * DRILL_DEPTH : Drill depth 
-  * CUT_DEPTH : Pattern cutting depth 
-  * TOOL_D : Diameter of the cutting tool 
-  * DRILL_D : Drill diameter 
-  * EDGE_TOOL_D : Edge cutting tool diameter 
-  * EDGE_DEPTH : Edge cutting depth 
-  * EDGE_SPEED : Edge cutting speed 
-  * EDGE_Z_SPEED : Edge down speed 
-  * MERGE_DRILL_DATA : If you want to merge drill data and pattern data, set 1. 
+  * DRILL_SPEED : Drill down speed.
+  * DRILL_DEPTH : Drill depth.
+  * CUT_DEPTH : Pattern cutting depth.
+  * TOOL_D : Diameter of the cutting tool.
+  * DRILL_D : Drill diameter.
+  * EDGE_TOOL_D : Edge cutting tool diameter.
+  * EDGE_DEPTH : Edge cutting depth.
+  * EDGE_SPEED : Edge cutting speed.
+  * EDGE_Z_SPEED : Edge down speed.
+  * MERGE_DRILL_DATA : If you want to merge drill data and pattern data, set 1. Default 0
   * Z_STEP : cutting step in z axis. 
-
+  * DRILL_TYPE : If you use endmill for drilling, set 1. When set 1 this flag, large drill (> endmill diameter) holes will be converted to circle cutting. Default 1
 ===For data convert===
-  * MIRROR_FRONT :  if you want MIRROR the front pattern, set 1
-  * MIRROR_BACK :  if you want MIRROR the back pattern, set 1
-  * MIRROR_DRILL :  if you want MIRROR the drill pattern, set 1
-  * MIRROR_EDGE : if you want MIRROR the edge pattern, set 1
-  * ROT_ANG : Rotation angle (degree) of the converted data. 
+  * MIRROR_FRONT :  if you want MIRROR the front pattern, set 1. Default 0
+  * MIRROR_BACK :  if you want MIRROR the back pattern, set 1. Default 0
+  * MIRROR_DRILL :  if you want MIRROR the drill pattern, set 1. Default 0
+  * MIRROR_EDGE : if you want MIRROR the edge pattern, set 1. Default 0
+  * ROT_ANG : Rotation angle (degree) of the converted data. Default 0
 
-  * CUT_ALL_FRONT : if you want scrape all non-copper area, set 1. See bottom of this page.
-  * CUT_ALL_BACK :  N/A (for future version)
+  * CUT_ALL_FRONT : if you want scrape all non-copper area, set 1. See bottom of this page. Default 0
+  * CUT_ALL_BACK :  N/A (for future version). Default 0
   * CUT_STEP_R : cutting step ratio. = (TOOL_D - overwrap)/TOOL_D
   * CUT_MAX : Max number of the cutting loop.
 
 ===For G-code output===
-  * MCODE_FLAG : If you want insert M code (ex. spindle on "M03"), set 1 
-  * OUT_INCH_FLAG : If the unit of input files are INCH, set 1. Set 0 for MM
+  * MCODE_FLAG : If you want insert M code (ex. spindle on "M03"), set 1. Default 0
+  * OUT_INCH_FLAG : If the unit of input files are INCH, set 1. Set 0 for MM. Default 0
   * OUT_DIR : G-code data directory
   * OUT_FRONT_FILE : Front pattern g-code file name
   * OUT_BACK_FILE : Back pattern g-code file name

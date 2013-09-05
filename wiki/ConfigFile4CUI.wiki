@@ -46,7 +46,7 @@
 
 ===For G-code output===
   * MCODE_FLAG : If you want insert M code (ex. spindle on "M03"), set 1. Default 0
-  * OUT_INCH_FLAG : If the unit of input files are INCH, set 1. Set 0 for MM. Default 0
+  * OUT_INCH_FLAG : If the unit of output files are INCH, set 1. Set 0 for MM. Default 0
   * OUT_DIR : G-code data directory
   * OUT_FRONT_FILE : Front pattern g-code file name
   * OUT_BACK_FILE : Back pattern g-code file name

@@ -1,6 +1,10 @@
 #labels Phase-Deploy
 = Install =
  * Install [http://www.python.org/ Python]
+ * Install [https://pypi.python.org/pypi/Shapely Shapley]
+  * There are Ubuntu and Debian official package
  * Install [http://www.wxpython.org/ wxPython] for GUI version
-  * There are Ubuntu and Debian official package 
- * Download pygerber2gcode.py (GUI version) and pyg2g.conf (configure file) from this site.
+  * There are Ubuntu and Debian official package
+
+
+ * Download [https://drive.google.com/file/d/0B8iaNA6lo1s8OEU4bjFXYzZLT1k/edit?usp=sharing pygerber2gcodeXX.zip] from Google Drive.

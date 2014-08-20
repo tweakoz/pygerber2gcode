@@ -5,8 +5,8 @@
   * There are Ubuntu and Debian official package
  * Install [http://www.wxpython.org/ wxPython] for GUI version
   * There are Ubuntu and Debian official package
-
-
+ * Install [http://matplotlib.org/ matplotlib] for CUI version
+  * There are Ubuntu and Debian official package
  * Download [https://drive.google.com/file/d/0B8iaNA6lo1s8dk1oLXNBcnczSlE/edit?usp=sharing pygerber2gcodeXX.zip] from Google Drive.
  * Uncompress the file
  * Run program by "python pygerber2gcode.py"

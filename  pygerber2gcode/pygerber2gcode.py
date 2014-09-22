@@ -665,6 +665,13 @@ class MainFrame(wx.Frame):
 			set_gcode(f_gcd)
 			f_gcd.add_polygon(CUT_DEPTH,gFRONT_HEADER.out_figs.elements,XY_SPEED, Z_SPEED)
 			f_gcd.out(OUT_DIR,OUT_FRONT_FILE)
+			front_cut_length = f_gcd.cut_length+f_gcd.cut_length_z
+			front_move_length = f_gcd.move_length+f_gcd.move_length_z
+			front_total_time = (f_gcd.cut_time + f_gcd.cut_time_z + f_gcd.move_time+f_gcd.move_time_z)*60.0
+			ft_h=int(front_total_time/3600.0)
+			ft_m=int((front_total_time % 3600.0)/60)
+			ft_s=int(front_total_time-ft_h*3600-ft_m*60)
+
 			a_gcd.add_polygon(CUT_DEPTH,gFRONT_HEADER.out_figs.elements,XY_SPEED, Z_SPEED)
 		if BACK_FILE:
 			b_gcd = gcode.Gcode()
@@ -672,6 +679,12 @@ class MainFrame(wx.Frame):
 			b_gcd.add_polygon(CUT_DEPTH,gBACK_HEADER.out_figs.elements,XY_SPEED, Z_SPEED)
 			b_gcd.out(OUT_DIR,OUT_BACK_FILE)
 			a_gcd.add_polygon(CUT_DEPTH,gBACK_HEADER.out_figs.elements,XY_SPEED, Z_SPEED)
+			back_cut_length = b_gcd.cut_length+b_gcd.cut_length_z
+			back_move_length = b_gcd.move_length+b_gcd.move_length_z
+			back_total_time = (b_gcd.cut_time + b_gcd.cut_time_z + b_gcd.move_time+b_gcd.move_time_z)*60.0
+			bk_h=int(back_total_time/3600.0)
+			bk_m=int((back_total_time % 3600.0)/60)
+			bk_s=int(back_total_time-bk_h*3600-bk_m*60)
 		if DRILL_FILE:
 			d_gcd = gcode.Gcode()
 			set_gcode(d_gcd)
@@ -686,7 +699,27 @@ class MainFrame(wx.Frame):
 			edge2gcode(a_gcd,gEDGE_HEADER.out_figs.elements)
 
 		a_gcd.out(OUT_DIR,OUT_ALL_FILE)
-		dlg = wx.MessageDialog(self, "Convert finished", "Convert is finished" , wx.OK)
+		disp_unit="mm"
+		if OUT_UNIT == INCH:
+			disp_unit="inch"
+
+		msg="-- Estimated Cutting informations --\n\n"
+		if FRONT_FILE:	
+			front_cut_length=float(int(front_cut_length*100)/100.0)
+			front_move_length=float(int(front_move_length*100)/100.0)
+			front_total_time=float(int(front_total_time*100)/100.0)
+			msg +="** Front **\n"
+			msg += "  Cutting length : "+ str(front_cut_length)+disp_unit+"\n"+"  Move length : "+ str(front_move_length)+disp_unit+"\n"
+			msg += "  Cutting time : "+ str(ft_h) + "hour"+str(ft_m)+"min"+str(ft_s)+"sec ("+str(front_total_time)+" sec)\n\n"
+		if BACK_FILE:
+			back_cut_length=float(int(back_cut_length*100)/100.0)
+			back_move_length=float(int(back_move_length*100)/100.0)
+			back_total_time=float(int(back_total_time*100)/100.0)
+			msg +="** Back **\n"
+			msg += "  Cutting length : "+ str(back_cut_length)+disp_unit+"\n"+"  Move length : "+ str(back_move_length)+disp_unit+"\n"
+			msg += "  Cutting time : "+ str(bk_h) + "hour"+str(bk_m)+"min"+str(bk_s)+"sec ("+str(back_total_time)+" sec)"
+		dlg = wx.MessageDialog(self, msg, "G-code Converting is finished" , wx.OK)
+
 		dlg.ShowModal() # Shows it
 		dlg.Destroy() # finally destroy it when finished.
 		self.Refresh(1)

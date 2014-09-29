@@ -436,6 +436,19 @@ class MainFrame(wx.Frame):
 			tmp_back.in_unit=IN_UNIT
 			tmp_back.out_unit=OUT_UNIT
 			tmp_back.gerber2shapely()
+			if not FRONT_FILE:
+				tmp_back.get_minmax(tmp_back.tmp_figs)
+				gFIG_XMAX = tmp_back.xmax
+				gFIG_YMAX = tmp_back.ymax
+				gFIG_XMIN = tmp_back.xmin
+				gFIG_YMIN = tmp_back.ymin
+				gFIG_CX = (gFIG_XMAX+gFIG_XMIN)/2.0
+				gFIG_CY = (gFIG_YMAX+gFIG_YMIN)/2.0
+				gMAG=size.x/abs(gFIG_XMAX-gFIG_XMIN)
+				if gMAG > size.y/abs(gFIG_YMAX-gFIG_YMIN):
+					gMAG = size.y/abs(gFIG_YMAX-gFIG_YMIN)
+				gDRAW_XSHIFT = -gFIG_CX*gMAG
+				gDRAW_YSHIFT = gFIG_CY*gMAG
 			tmp_back.draw_out()
 			back_draw(tmp_back.draw_figs)
 		if(DRILL_FILE):
@@ -1408,6 +1421,19 @@ class OpenFiles(wx.Dialog):
 			tmp_back.in_unit=IN_UNIT
 			tmp_back.out_unit=OUT_UNIT
 			tmp_back.gerber2shapely()
+			if not self.gerber.GetValue():
+				tmp_back.get_minmax(tmp_back.tmp_figs)
+				gFIG_XMAX = tmp_back.xmax
+				gFIG_YMAX = tmp_back.ymax
+				gFIG_XMIN = tmp_back.xmin
+				gFIG_YMIN = tmp_back.ymin
+				gFIG_CX = (gFIG_XMAX+gFIG_XMIN)/2.0
+				gFIG_CY = (gFIG_YMAX+gFIG_YMIN)/2.0
+				gMAG=size.x/abs(gFIG_XMAX-gFIG_XMIN)
+				if gMAG > size.y/abs(gFIG_YMAX-gFIG_YMIN):
+					gMAG = size.y/abs(gFIG_YMAX-gFIG_YMIN)
+				gDRAW_XSHIFT = -gFIG_CX*gMAG
+				gDRAW_YSHIFT = gFIG_CY*gMAG
 			tmp_back.draw_out()
 			back_draw(tmp_back.draw_figs)
 		if(self.drill.GetValue()):

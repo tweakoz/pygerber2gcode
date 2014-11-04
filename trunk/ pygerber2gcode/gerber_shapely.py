@@ -33,6 +33,14 @@ class Gerber_OP:
 		self.circle_ang = 20
 		self.drill_circle_ang = 20
 		self.drill_asobi = tool_d/10.0
+		self.zone_segment = 0
+		self.lines = []
+	class Line:
+		def __init__(self, points, active = 1,fig_type=0,r=0):
+			self.element = LineString(points)
+			self.active = active
+			self.fig_type = fig_type
+			self.r = r
 	class Figs:
 		#def __init__(self, element, active = 1,fig_type=0,r=0):
 		def __init__(self, element, active = 1):
@@ -137,7 +145,14 @@ class Gerber_OP:
 						for interior in raw_polygon.interiors:
 							self.raw_figs.add(self.Figs(Polygon(interior)))
 				else:
-					self.tmp_figs.add(self.Figs(LineString(gbr.points).buffer(float(gbr.w)/2.0+self.tool_r, cap_style=cap_s)))
+					if self.zone_segment:
+						if LineString(gbr.points).is_simple:
+							self.lines.append(self.Line(gbr.points,fig_type = cap_s,r = float(gbr.w)/2.0+self.tool_r))
+						else:
+							self.tmp_figs.add(self.Figs(Polygon(gbr.points).buffer(float(gbr.w)/2.0+self.tool_r, cap_style=cap_s)))
+					else:
+						self.tmp_figs.add(self.Figs(LineString(gbr.points).buffer(float(gbr.w)/2.0+self.tool_r, cap_style=cap_s)))
+					#
 					self.raw_figs.add(self.Figs(LineString(gbr.points).buffer(float(gbr.w)/2.0, cap_style=cap_s)))
 			elif(gbr.type == 1):
 				#Circle
@@ -168,7 +183,32 @@ class Gerber_OP:
 				self.tmp_figs.add(self.Figs(Point(gbr.cx,gbr.cy).buffer(float(gbr.r)+self.tool_r,resolution=gbr.sides)))
 				self.raw_figs.add(self.Figs(Point(gbr.cx,gbr.cy).buffer(float(gbr.r),resolution=gbr.sides)))
 
+	def reduce_lines(self):
+		print "Reduce Lines"
+		for elmt in self.tmp_figs.elements:
+			if elmt.active == 0:
+				continue
+			if elmt.element.is_empty:
+				continue
+			if elmt.element.geom_type == 'Polygon':
+				for line in self.lines:
+					if line.active:
+						if line.element.within(elmt.element):
+							line.active = 0
+			elif elmt.element.geom_type == 'MultiPolygon':
+				for polygon in elmt.element:
+					for line in self.lines:
+						if line.active:
+							if line.element.within(polygon):
+								line.active = 0
+		for line in self.lines:
+			if line.active:
+				self.tmp_figs.add(self.Figs(line.element.buffer(line.r, cap_style=line.fig_type)))
+		print "start merge polygon"
 	def merge_polygon(self):
+		if self.zone_segment:
+			if len(self.lines) > 0:
+				self.reduce_lines()
 		merge = []
 		for elmt in self.tmp_figs.elements:
 			if elmt.active == 0:
@@ -202,11 +242,14 @@ class Gerber_OP:
 			if elmt.active == 0:
 				continue
 			if elmt.element.geom_type=='LineString':
-				lines.append(elmt.element)
+				if len(elmt.element.coords)>1:
+					lines.append(elmt.element)
 				elmt.active = 0
 			elif elmt.element.geom_type=='MultiLineString':
-				lines.extend(elmt.element)
-				elmt.active = 0
+				for line in elmt.element:
+					if len(line.coords)>1:
+						lines.append(line)
+					elmt.active = 0
 		if len(lines) > 0:
 			self.figs.add(self.Figs(linemerge(lines)))
 		else:

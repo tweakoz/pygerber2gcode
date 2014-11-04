@@ -11,10 +11,13 @@ import datetime
 import locale
 import re
 import time
+import imp
 
+#Orginal library
 import gerber
 import gcode
 import gerber_shapely as gs
+
 #Global Constant
 HUGE = 1e10
 TINY = 1e-6
@@ -26,6 +29,10 @@ WINDOW_X = 1024
 WINDOW_Y = 768
 CENTER_X=200.0
 CENTER_Y=200.0
+#GUI
+LANG_DIR = "lang"
+#LANG = "jp"
+LANG = "en"
 
 #For CNC machine
 SET_INI = 1
@@ -53,6 +60,7 @@ MERGE_DRILL_DATA = 0
 PATTERN_SHIFT = 1
 LEFT_X = 5.0
 LOWER_Y = 5.0
+USE_SEGMENT = 0
 #For file
 OUT_INCH_FLAG = 0
 IN_INCH_FLAG = 1
@@ -188,19 +196,19 @@ class MainFrame(wx.Frame):
 
 		# Setting up the menu.
 		filemenu= wx.Menu()
-		menuOpen = filemenu.Append(wx.ID_OPEN,"&Open/Save","Gerber Open/G-code Save files")
-		menuReload = filemenu.Append(wx.ID_REFRESH,"&Reload Data","Reload files")
-		menuLoadConf = filemenu.Append(wx.ID_FILE,"&Load Configure","Open configure file")
-		menuSaveConf = filemenu.Append(wx.ID_SAVE,"&Save Configure","Save configure file")
-		menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+		menuOpen = filemenu.Append(wx.ID_OPEN,lng.OPEN_SAVE,"Gerber Open/G-code Save files")
+		menuReload = filemenu.Append(wx.ID_REFRESH,lng.RELOAD,"Reload files")
+		menuLoadConf = filemenu.Append(wx.ID_FILE,lng.LOAD_CONF,"Open configure file")
+		menuSaveConf = filemenu.Append(wx.ID_SAVE,lng.SAVE_CONF,"Save configure file")
+		menuExit = filemenu.Append(wx.ID_EXIT,lng.EXIT," Terminate the program")
 		setupmenu =  wx.Menu()
-		menuMachine = setupmenu.Append(wx.ID_SETUP,"&Machine setup"," Setup Machine")
-		menuConv = setupmenu.Append(wx.ID_VIEW_LIST,"&Convert setup"," Convert setup")
+		menuMachine = setupmenu.Append(wx.ID_SETUP,lng.MACHINE_SET," Setup Machine")
+		menuConv = setupmenu.Append(wx.ID_VIEW_LIST,lng.CONV_SET," Convert setup")
 
 		# Creating the menubar.
 		menuBar = wx.MenuBar()
-		menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBar
-		menuBar.Append(setupmenu,"&Setup") # Adding the "filemenu" to the MenuBar
+		menuBar.Append(filemenu,lng.FILE) # Adding the "filemenu" to the MenuBar
+		menuBar.Append(setupmenu,lng.FILE_SET) # Adding the "filemenu" to the MenuBar
 		self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
 
 		self.statusbar = self.CreateStatusBar()
@@ -221,37 +229,37 @@ class MainFrame(wx.Frame):
 		panel1 = wx.Panel(panel, -1)
 		hbox0 = wx.BoxSizer(wx.HORIZONTAL)
 
-		box1 = wx.StaticBox(panel1, -1, 'Display data')
+		box1 = wx.StaticBox(panel1, -1, lng.DISP_DATA)
 		#sizer1 = wx.StaticBoxSizer(box1, orient=wx.VERTICAL)
 		sizer1 = wx.StaticBoxSizer(box1, orient=wx.HORIZONTAL)
 		grid1 = wx.GridSizer(2, 6, 0, 6)
-		self.cb0 = wx.CheckBox(panel1, -1, 'Front data')
+		self.cb0 = wx.CheckBox(panel1, -1, lng.DISP_FRONT)
 		self.cb0.SetValue(gDISP_FRONT)
 		grid1.Add(self.cb0)
 
-		self.cb1 = wx.CheckBox(panel1, -1, 'Back data')
+		self.cb1 = wx.CheckBox(panel1, -1, lng.DISP_BACK)
 		self.cb1.SetValue(gDISP_BACK)
 		grid1.Add(self.cb1)
-		self.cb2 = wx.CheckBox(panel1, -1, 'Drill data')
+		self.cb2 = wx.CheckBox(panel1, -1, lng.DISP_DRILL)
 		self.cb2.SetValue(gDISP_DRILL)
 		grid1.Add(self.cb2)
-		self.cb3 = wx.CheckBox(panel1, -1, 'Edge data')
+		self.cb3 = wx.CheckBox(panel1, -1, lng.DISP_EDGE)
 		self.cb3.SetValue(gDISP_EDGE)
 		grid1.Add(self.cb3)
 
-		self.cb4 = wx.CheckBox(panel1, -1, 'Front Contour')
+		self.cb4 = wx.CheckBox(panel1, -1, lng.DISP_FCONT)
 		self.cb4.SetValue(gDISP_CONTOUR_FRONT)
 		grid1.Add(self.cb4)
 
-		self.cb5 = wx.CheckBox(panel1, -1, 'Back Contour')
+		self.cb5 = wx.CheckBox(panel1, -1, lng.DISP_BCONT)
 		self.cb5.SetValue(gDISP_CONTOUR_BACK)
 		grid1.Add(self.cb5)
 		sizer1.Add(grid1)
 		hbox0.Add(sizer1)
 
-		fit_btn = wx.Button(panel1, -1, 'Fit to window', size=(100, 30))
+		fit_btn = wx.Button(panel1, -1, lng.DISP_FIT, size=(150, 30))
 		hbox0.Add(fit_btn)
-		center_btn = wx.Button(panel1, -1, 'Goto Center', size=(100, 30))
+		center_btn = wx.Button(panel1, -1, lng.DISP_CENTER, size=(100, 30))
 		hbox0.Add(center_btn)
 
 		#panel1.SetSizer(sizer1)
@@ -271,11 +279,11 @@ class MainFrame(wx.Frame):
 
 		hbox5 = wx.BoxSizer(wx.HORIZONTAL)
 
-		btn0 = wx.Button(panel, -1, 'Generate contour', size=(150, 30))
+		btn0 = wx.Button(panel, -1, lng.GEN_CONT, size=(150, 30))
 		hbox5.Add(btn0, 0)
-		btn1 = wx.Button(panel, -1, 'Convert to G-code and Save G-code', size=(300, 30))
+		btn1 = wx.Button(panel, -1, lng.SAVE_GCODE, size=(300, 30))
 		hbox5.Add(btn1, 0)
-		btn2 = wx.Button(panel, -1, 'Close', size=(70, 30))
+		btn2 = wx.Button(panel, -1, lng.CLOSE, size=(70, 30))
 		hbox5.Add(btn2, 0, wx.LEFT | wx.BOTTOM , 5)
 		vbox.Add(hbox5, 0, wx.ALIGN_RIGHT | wx.RIGHT, 10)
 
@@ -312,7 +320,7 @@ class MainFrame(wx.Frame):
 	#functions
 	def OnLoadConf(self,e):
 		global CONFIG_FILE
-		dlg = wx.FileDialog(self, "Choose a input Configure file", "./",CONFIG_FILE, "*.conf", wx.FD_OPEN)
+		dlg = wx.FileDialog(self, lng.SELECT_OPEN_CONF, "./",CONFIG_FILE, "*.conf", wx.FD_OPEN)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -322,7 +330,7 @@ class MainFrame(wx.Frame):
 		set_unit()
 	def OnSaveConf(self,e):
 		global CONFIG_FILE
-		dlg = wx.FileDialog(self, "Choose a Configure file for save", "./", CONFIG_FILE,"*.conf", wx.FD_SAVE)
+		dlg = wx.FileDialog(self, lng.SELECT_SAVE_CONF, "./", CONFIG_FILE,"*.conf", wx.FD_SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -385,12 +393,12 @@ class MainFrame(wx.Frame):
 		#self.Close(True)  # Close the frame.
 		sys.exit()
 	def OnSetup(self,e):
-		setup = MachineSetup(None, -1, 'Machine Setup')
+		setup = MachineSetup(None, -1, lng.MACHINE_SET_TITLE)
 		setup.ShowModal()
 		setup.Destroy()
 	def OnConvSet(self,e):
 		#print "view"
-		setup = ConvSetup(None, -1, 'Convert Setup')
+		setup = ConvSetup(None, -1, lng.CONV_SET_TITLE)
 		setup.ShowModal()
 		setup.Destroy()
 
@@ -471,7 +479,7 @@ class MainFrame(wx.Frame):
 	def OnOpen(self,e):
 		#global gPATTERNS,gBACK_PATTERNS, gDRAWDRILL, gDRAWDRILL_LINE, gDRAWEDGE
 		global gDISP_FRONT,gDISP_BACK, gDISP_DRILL, gDISP_EDGE
-		setup = OpenFiles(None, -1, 'Gerber Open/G-code Save files')
+		setup = OpenFiles(None, -1, lng.FILE_TITLE)
 		setup.ShowModal()
 		setup.Destroy()
 		set_unit()
@@ -508,7 +516,7 @@ class MainFrame(wx.Frame):
 			tmp_ymax = 0.0
 			tmp_xmin = 0.0
 			tmp_ymin = 0.0
-			progress = wx.ProgressDialog("Front Progress",'Front Progress', maximum = 100, parent=self, style = wx.PD_CAN_ABORT | wx.PD_AUTO_HIDE | wx.PD_APP_MODAL)
+			progress = wx.ProgressDialog(lng.F_PROGRESS_TITLE,lng.F_PROGRESS_MSG, maximum = 100, parent=self, style = wx.PD_CAN_ABORT | wx.PD_AUTO_HIDE | wx.PD_APP_MODAL)
 			progress.SetSize((300, 100))
 			for i in range(int(CUT_MAX_FRONT)):
 				pp=((i+1)*100)/int(CUT_MAX_FRONT)
@@ -529,10 +537,10 @@ class MainFrame(wx.Frame):
 					center=gFRONT_HEADER.center
 				gFRONT_HEADER.limit_cut(tmp_xmax,tmp_ymax,tmp_xmin,tmp_ymin)
 				tmp_poly_num=gFRONT_HEADER.count_active_figs()
-				progress.Update(pp, 'Loop No. '+ str(i+1)+"/"+str(CUT_MAX_FRONT)+", Number of Polygons"+str(tmp_poly_num))
+				progress.Update(pp, lng.LOOP_NO+' '+ str(i+1)+"/"+str(CUT_MAX_FRONT)+", "+lng.POLY_NO+str(tmp_poly_num))
 				tmp_elements += gFRONT_HEADER.figs.elements
 				if tmp_poly_num < 2:
-					progress.Update(100, 'No new polygons')
+					progress.Update(100, lng.NO_NEW_POLY)
 					break
 			gFRONT_HEADER.figs.elements=tmp_elements
 		progress.Destroy()
@@ -551,7 +559,7 @@ class MainFrame(wx.Frame):
 			tmp_ymax = 0.0
 			tmp_xmin = 0.0
 			tmp_ymin = 0.0
-			progress = wx.ProgressDialog("Back Progress",'Back Progress', maximum = 100, parent=self, style = wx.PD_CAN_ABORT | wx.PD_AUTO_HIDE | wx.PD_APP_MODAL)
+			progress = wx.ProgressDialog(lng.B_PROGRESS_TITLE,lng.B_PROGRESS_MSG, maximum = 100, parent=self, style = wx.PD_CAN_ABORT | wx.PD_AUTO_HIDE | wx.PD_APP_MODAL)
 			progress.SetSize((300, 100))
 			for i in range(CUT_MAX_BACK):
 				pp=((i+1)*100)/int(CUT_MAX_BACK)
@@ -574,10 +582,10 @@ class MainFrame(wx.Frame):
 					break
 				tmp_poly_num=gBACK_HEADER.count_active_figs()
 				#tmp_poly_num=len(gBACK_HEADER.figs.elements)
-				progress.Update(pp, 'Loop No. '+ str(i+1)+"/"+str(CUT_MAX_BACK)+", Number of Polygons"+str(tmp_poly_num))
+				progress.Update(pp, lng.LOOP_NO+' '+ str(i+1)+"/"+str(CUT_MAX_BACK)+", "+lng.POLY_NO+str(tmp_poly_num))
 				tmp_elements += gBACK_HEADER.figs.elements
 				if tmp_poly_num < 2:
-					progress.Update(100, 'No new polygons')
+					progress.Update(100, lng.NO_NEW_POLY)
 					break
 			gBACK_HEADER.figs.elements=tmp_elements
 		progress.Destroy()
@@ -665,7 +673,7 @@ class MainFrame(wx.Frame):
 			gEDGE_HEADER.draw_out()
 			edge_draw(gEDGE_HEADER.draw_figs)
 
-		dlg = wx.MessageDialog(self, "Contour generation is finished", "Contour generation is finished" , wx.OK)
+		dlg = wx.MessageDialog(self, lng.FINISH_GENE_MSG, lng.FINISH_GENE_CAP , wx.OK)
 		dlg.ShowModal() # Shows it
 		dlg.Destroy()
 		#self.Refresh(1)
@@ -716,22 +724,22 @@ class MainFrame(wx.Frame):
 		if OUT_UNIT == INCH:
 			disp_unit="inch"
 
-		msg="-- Estimated Cutting informations --\n\n"
+		msg=lng.EST_INFO+"\n\n"
 		if FRONT_FILE:	
 			front_cut_length=float(int(front_cut_length*100)/100.0)
 			front_move_length=float(int(front_move_length*100)/100.0)
 			front_total_time=float(int(front_total_time*100)/100.0)
-			msg +="** Front **\n"
-			msg += "  Cutting length : "+ str(front_cut_length)+disp_unit+"\n"+"  Move length : "+ str(front_move_length)+disp_unit+"\n"
-			msg += "  Cutting time : "+ str(ft_h) + "hour"+str(ft_m)+"min"+str(ft_s)+"sec ("+str(front_total_time)+" sec)\n\n"
+			msg +=lng.EST_FRONT+"\n"
+			msg += lng.CUT_L + str(front_cut_length)+disp_unit+"\n"+lng.MOVE_L+ str(front_move_length)+disp_unit+"\n"
+			msg += lng.CUT_TIME + str(ft_h) + lng.HOUR +str(ft_m)+lng.MIN+str(ft_s)+lng.SEC+" ("+str(front_total_time)+" "+lng.SEC+")\n\n"
 		if BACK_FILE:
 			back_cut_length=float(int(back_cut_length*100)/100.0)
 			back_move_length=float(int(back_move_length*100)/100.0)
 			back_total_time=float(int(back_total_time*100)/100.0)
-			msg +="** Back **\n"
-			msg += "  Cutting length : "+ str(back_cut_length)+disp_unit+"\n"+"  Move length : "+ str(back_move_length)+disp_unit+"\n"
-			msg += "  Cutting time : "+ str(bk_h) + "hour"+str(bk_m)+"min"+str(bk_s)+"sec ("+str(back_total_time)+" sec)"
-		dlg = wx.MessageDialog(self, msg, "G-code Converting is finished" , wx.OK)
+			msg +=lng.EST_BACK +"\n"
+			msg += lng.CUT_L + str(back_cut_length)+disp_unit+"\n"+lng.MOVE_L+ str(back_move_length)+disp_unit+"\n"
+			msg += lng.CUT_TIME + str(bk_h) + lng.HOUR +str(bk_m)+lng.MIN+str(bk_s)+lng.SEC+" ("+str(back_total_time)+" "+lng.SEC+")"
+		dlg = wx.MessageDialog(self, msg, lng.FINISH_CONV , wx.OK)
 
 		dlg.ShowModal() # Shows it
 		dlg.Destroy() # finally destroy it when finished.
@@ -1060,167 +1068,167 @@ class OpenFiles(wx.Dialog):
 		panel = wx.Panel(self, -1)
 		sizer = wx.GridBagSizer(0, 0)
 
-		text1 = wx.StaticText(panel, -1, 'Front Gerber file')
+		text1 = wx.StaticText(panel, -1, lng.FRONT_GERBER)
 		sizer.Add(text1, (0, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.gerber = wx.TextCtrl(panel, -1)
 		self.gerber.SetValue(FRONT_FILE)
 		sizer.Add(self.gerber, (0, 1), (1, 4), wx.TOP | wx.EXPAND, 5)
 
-		button1 = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button1 = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button1, (0, 5), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
 
-		back_txt = wx.StaticText(panel, -1, 'Back Gerber file')
+		back_txt = wx.StaticText(panel, -1, lng.BACK_GERBER)
 		sizer.Add(back_txt, (1, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.back = wx.TextCtrl(panel, -1)
 		self.back.SetValue(BACK_FILE)
 		sizer.Add(self.back, (1, 1), (1, 4), wx.TOP | wx.EXPAND, 5)
 
-		back_button = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		back_button = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(back_button, (1, 5), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		text2 = wx.StaticText(panel, -1, 'Drill data file')
+		text2 = wx.StaticText(panel, -1, lng.DRILL_GERBER)
 		sizer.Add(text2, (2, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.drill = wx.TextCtrl(panel, -1)
 		self.drill.SetValue(DRILL_FILE)
 		sizer.Add(self.drill, (2, 1), (1, 4), wx.TOP | wx.EXPAND,  5)
 
-		button2 = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button2 = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button2, (2, 5), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		text0 = wx.StaticText(panel, -1, 'Edge data file')
+		text0 = wx.StaticText(panel, -1, lng.EDGE_GERBER)
 		sizer.Add(text0, (3, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.edge = wx.TextCtrl(panel, -1)
 		self.edge.SetValue(EDGE_FILE)
 		sizer.Add(self.edge, (3, 1), (1, 4), wx.TOP | wx.EXPAND,  5)
 
-		button_edge = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button_edge = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button_edge, (3, 5), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
 		radioList = ['mm', 'inch']
-		rb1 = wx.RadioBox(panel, label="unit of Input file", choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		rb1 = wx.RadioBox(panel, label=lng.INPUT_UNIT, choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
 		rb1.SetSelection(int(IN_INCH_FLAG))
 		sizer.Add(rb1, (4, 0), (1, 6), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
 		line = wx.StaticLine(panel, -1 )
 		sizer.Add(line, (6, 0), (1, 6), wx.TOP | wx.EXPAND, -15)
 
-		text3 = wx.StaticText(panel, -1, 'Front G-code file')
+		text3 = wx.StaticText(panel, -1, lng.FRONT_GCODE)
 		sizer.Add(text3, (7, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.gcode = wx.TextCtrl(panel, -1)
 		self.gcode.SetValue(OUT_FRONT_FILE)
 		sizer.Add(self.gcode, (7, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		button3 = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button3 = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button3, (7, 4), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		self.mirror_front = wx.CheckBox(panel, -1, 'Mirror', (10, 10))
+		self.mirror_front = wx.CheckBox(panel, -1, lng.MIRROR, (10, 10))
 		self.mirror_front.SetValue(int(MIRROR_FRONT))
 		sizer.Add(self.mirror_front, (7, 5), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		self.scribe_front = wx.CheckBox(panel, -1, 'Multi-Scrape:', (10, 10))
+		self.scribe_front = wx.CheckBox(panel, -1, lng.MULTI_SCRAPE, (10, 10))
 		self.scribe_front.SetValue(int(CUT_ALL_FRONT))
 		sizer.Add(self.scribe_front, (8, 0), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		cut_step_front_txt = wx.StaticText(panel, -1, 'Scrape Step/Tool Diameter')
+		cut_step_front_txt = wx.StaticText(panel, -1, lng.LOOP_R)
 		sizer.Add(cut_step_front_txt, (8, 1), flag=wx.TOP | wx.LEFT, border=10)
 		self.cut_step_front = wx.TextCtrl(panel, -1)
 		self.cut_step_front.SetValue(str(CUT_STEP_R_FRONT))
 		sizer.Add(self.cut_step_front, (8, 2), (1, 1), wx.TOP | wx.EXPAND,  5)
 
-		cut_max_front_txt = wx.StaticText(panel, -1, 'Scrape Loop Max')
+		cut_max_front_txt = wx.StaticText(panel, -1, lng.LOOP_MAX)
 		sizer.Add(cut_max_front_txt, (8, 3), flag=wx.TOP | wx.LEFT, border=10)
 		self.cut_max_front = wx.TextCtrl(panel, -1)
 		self.cut_max_front.SetValue(str(CUT_MAX_FRONT))
 		sizer.Add(self.cut_max_front, (8, 4), (1, 1), wx.TOP | wx.EXPAND,  5)
 
-		back_g_txt = wx.StaticText(panel, -1, 'Back G-code file')
+		back_g_txt = wx.StaticText(panel, -1, lng.BACK_GCODE)
 		sizer.Add(back_g_txt, (9, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.back_g = wx.TextCtrl(panel, -1)
 		self.back_g.SetValue(OUT_BACK_FILE)
 		sizer.Add(self.back_g, (9, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		back_g_button = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		back_g_button = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(back_g_button, (9, 4), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		self.mirror_back = wx.CheckBox(panel, -1, 'Mirror', (10, 10))
+		self.mirror_back = wx.CheckBox(panel, -1, lng.MIRROR, (10, 10))
 		self.mirror_back.SetValue(int(MIRROR_BACK))
 		sizer.Add(self.mirror_back, (9, 5), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		self.scribe_back = wx.CheckBox(panel, -1, 'Multi-Scrape:', (10, 10))
+		self.scribe_back = wx.CheckBox(panel, -1, lng.MULTI_SCRAPE, (10, 10))
 		self.scribe_back.SetValue(int(CUT_ALL_BACK))
 		sizer.Add(self.scribe_back, (10, 0), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		cut_step_back_txt = wx.StaticText(panel, -1, 'Scrape Step/Tool Diameter')
+		cut_step_back_txt = wx.StaticText(panel, -1, lng.LOOP_R)
 		sizer.Add(cut_step_back_txt, (10, 1), flag=wx.TOP | wx.LEFT, border=10)
 		self.cut_step_back = wx.TextCtrl(panel, -1)
 		self.cut_step_back.SetValue(str(CUT_STEP_R_BACK))
 		sizer.Add(self.cut_step_back, (10, 2), (1, 1), wx.TOP | wx.EXPAND,  5)
 
-		cut_max_back_txt = wx.StaticText(panel, -1, 'Scrape Loop Max')
+		cut_max_back_txt = wx.StaticText(panel, -1, lng.LOOP_MAX)
 		sizer.Add(cut_max_back_txt, (10, 3), flag=wx.TOP | wx.LEFT, border=10)
 		self.cut_max_back = wx.TextCtrl(panel, -1)
 		self.cut_max_back.SetValue(str(CUT_MAX_BACK))
 		sizer.Add(self.cut_max_back, (10, 4), (1, 1), wx.TOP | wx.EXPAND,  5)
 
-		text4 = wx.StaticText(panel, -1, 'G-code Drill file')
+		text4 = wx.StaticText(panel, -1, lng.DRILL_GCODE)
 		sizer.Add(text4, (11, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.gdrill = wx.TextCtrl(panel, -1)
 		self.gdrill.SetValue(OUT_DRILL_FILE)
 		sizer.Add(self.gdrill, (11, 1), (1, 3), wx.TOP | wx.EXPAND,  5)
 
-		button4 = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button4 = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button4, (11, 4), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		self.mirror_drill = wx.CheckBox(panel, -1, 'Mirror', (10, 10))
+		self.mirror_drill = wx.CheckBox(panel, -1, lng.MIRROR, (10, 10))
 		self.mirror_drill.SetValue(int(MIRROR_DRILL))
 		sizer.Add(self.mirror_drill, (11, 5), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
 
-		text_gedge = wx.StaticText(panel, -1, 'G-code Edge file')
+		text_gedge = wx.StaticText(panel, -1, lng.EDEG_GCODE)
 		sizer.Add(text_gedge, (12, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.gedge = wx.TextCtrl(panel, -1)
 		self.gedge.SetValue(OUT_EDGE_FILE)
 		sizer.Add(self.gedge, (12, 1), (1, 3), wx.TOP | wx.EXPAND,  5)
 
-		button_gedge = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button_gedge = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button_gedge, (12, 4), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		self.mirror_edge = wx.CheckBox(panel, -1, 'Mirror', (10, 10))
+		self.mirror_edge = wx.CheckBox(panel, -1, lng.MIRROR, (10, 10))
 		self.mirror_edge.SetValue(int(MIRROR_EDGE))
 		sizer.Add(self.mirror_edge, (12, 5), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
 
-		text_gall = wx.StaticText(panel, -1, 'All G-code file')
+		text_gall = wx.StaticText(panel, -1, lng.ALL_GCODE)
 		sizer.Add(text_gall, (13, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.gall = wx.TextCtrl(panel, -1)
 		self.gall.SetValue(OUT_ALL_FILE)
 		sizer.Add(self.gall, (13, 1), (1, 3), wx.TOP | wx.EXPAND,  5)
 
-		button_gall = wx.Button(panel, -1, 'Browse...', size=(-1, 30))
+		button_gall = wx.Button(panel, -1, lng.BROWSE, size=(-1, 30))
 		sizer.Add(button_gall, (13, 4), (1, 1), wx.TOP | wx.LEFT | wx.RIGHT , 5)
 
-		rb2 = wx.RadioBox(panel, label="unit of Output file", choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		rb2 = wx.RadioBox(panel, label=lng.OUTPUT_UNIT, choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
 		rb2.SetSelection(int(OUT_INCH_FLAG))
 		sizer.Add(rb2, (14, 0), (1, 3), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		rot_ang_txt = wx.StaticText(panel, -1, 'Rotation angle (deg)')
+		rot_ang_txt = wx.StaticText(panel, -1, lng.ROT_ANG)
 		sizer.Add(rot_ang_txt, (14, 3), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.rot_ang = wx.TextCtrl(panel, -1)
 		self.rot_ang.SetValue(str(ROT_ANG))
 		sizer.Add(self.rot_ang, (14, 4), (1, 1), wx.TOP | wx.EXPAND,  5)
 		
-		text5 = wx.StaticText(panel, -1, 'Cutting depth')
+		text5 = wx.StaticText(panel, -1, lng.CUT_DEPTH)
 		sizer.Add(text5, (15, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.tc5 = wx.TextCtrl(panel, -1)
@@ -1228,24 +1236,24 @@ class OpenFiles(wx.Dialog):
 		sizer.Add(self.tc5, (15, 1), (1, 1), wx.TOP | wx.EXPAND,  5)
 
 
-		text6 = wx.StaticText(panel, -1, 'Drill depth')
+		text6 = wx.StaticText(panel, -1, lng.DRILL_DEPTH)
 		sizer.Add(text6, (15, 2), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.tc6 = wx.TextCtrl(panel, -1)
 		self.tc6.SetValue(str(DRILL_DEPTH))
 		sizer.Add(self.tc6, (15, 3), (1, 1), wx.TOP | wx.EXPAND,  5)
 
-		edge_dep_txt = wx.StaticText(panel, -1, 'Edge depth')
+		edge_dep_txt = wx.StaticText(panel, -1,lng.EDGE_DEPTH)
 		sizer.Add(edge_dep_txt, (15, 4), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.edge_dep = wx.TextCtrl(panel, -1)
 		self.edge_dep.SetValue(str(EDGE_DEPTH))
 		sizer.Add(self.edge_dep, (15, 5), (1, 1), wx.TOP | wx.EXPAND,  5)
 
-		button5 = wx.Button(panel, -1, 'OK', size=(-1, 30))
+		button5 = wx.Button(panel, -1, lng.OK, size=(-1, 30))
 		sizer.Add(button5, (17, 3), (1, 1),  wx.LEFT, 10)
 
-		button6 = wx.Button(panel, -1, 'Close', size=(-1, 30))
+		button6 = wx.Button(panel, -1, lng.CLOSE, size=(-1, 30))
 		sizer.Add(button6, (17, 4), (1, 1),  wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
 
 		sizer.AddGrowableCol(2)
@@ -1288,7 +1296,7 @@ class OpenFiles(wx.Dialog):
 	def OnGerberOpen(self,e):
 		#global GERBER_EXT
 		""" Open a front pattern file"""
-		dlg = wx.FileDialog(self, "Choose a input Gerber file", self.dirname, "", GERBER_EXT, wx.OPEN)
+		dlg = wx.FileDialog(self, lng.SELECT_FRONT_GERBER, self.dirname, "", GERBER_EXT, wx.OPEN)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1298,7 +1306,7 @@ class OpenFiles(wx.Dialog):
 	def OnBackOpen(self,e):
 		#global GERBER_EXT
 		""" Open a Back pattern file"""
-		dlg = wx.FileDialog(self, "Choose a input Gerber file", self.dirname, "", BACK_EXT, wx.OPEN)
+		dlg = wx.FileDialog(self, lng.SELECT_BACK_GERBER, self.dirname, "", BACK_EXT, wx.OPEN)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1307,7 +1315,7 @@ class OpenFiles(wx.Dialog):
 	def OnDrillOpen(self,e):
 		#global DRILL_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a input Drill file", self.dirname, "", DRILL_EXT, wx.OPEN)
+		dlg = wx.FileDialog(self, lng.SELECT_DRILL_GERBER, self.dirname, "", DRILL_EXT, wx.OPEN)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1317,7 +1325,7 @@ class OpenFiles(wx.Dialog):
 	def OnEdgeOpen(self,e):
 		#global EDGE_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a input Edge file", self.dirname, "", EDGE_EXT, wx.OPEN)
+		dlg = wx.FileDialog(self, lng.SELECT_EDGE_GERBER, self.dirname, "", EDGE_EXT, wx.OPEN)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1327,7 +1335,7 @@ class OpenFiles(wx.Dialog):
 	def OnGcodeOpen(self,e):
 		#global GCODE_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a output G-code Front file", self.dirname, "", GCODE_EXT, wx.SAVE)
+		dlg = wx.FileDialog(self, lng.SELECT_FRONT_GCODE, self.dirname, "", GCODE_EXT, wx.SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1337,7 +1345,7 @@ class OpenFiles(wx.Dialog):
 	def OnGBackOpen(self,e):
 		#global GCODE_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a output G-code Back file", self.dirname, "", GBACK_EXT, wx.SAVE)
+		dlg = wx.FileDialog(self, lng.SELECT_BACK_GCODE, self.dirname, "", GBACK_EXT, wx.SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1347,7 +1355,7 @@ class OpenFiles(wx.Dialog):
 	def OnGDrillOpen(self,e):
 		#global GDRILL_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a output G-code Drill file", self.dirname, "", GDRILL_EXT, wx.SAVE)
+		dlg = wx.FileDialog(self, lng.SELECT_DRILL_GCODE, self.dirname, "", GDRILL_EXT, wx.SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1357,7 +1365,7 @@ class OpenFiles(wx.Dialog):
 	def OnGEdgeOpen(self,e):
 		#global GEDGE_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a output G-code Edge file", self.dirname, "", GEDGE_EXT, wx.SAVE)
+		dlg = wx.FileDialog(self, lng.SELECT_EDGE_GCODE, self.dirname, "", GEDGE_EXT, wx.SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1367,7 +1375,7 @@ class OpenFiles(wx.Dialog):
 	def OnGAllOpen(self,e):
 		#global GEDGE_EXT
 		""" Open a file"""
-		dlg = wx.FileDialog(self, "Choose a output All G-code file", self.dirname, "", GCODE_EXT, wx.SAVE)
+		dlg = wx.FileDialog(self, lng.SELECT_ALL_GCODE, self.dirname, "", GCODE_EXT, wx.SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
@@ -1500,7 +1508,7 @@ class MachineSetup(wx.Dialog):
 		panel = wx.Panel(self, -1)
 		sizer = wx.GridBagSizer(0, 0)
 
-		text1 = wx.StaticText(panel, -1, 'Initial X posision')
+		text1 = wx.StaticText(panel, -1, lng.INI_X)
 		sizer.Add(text1, (0, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.inix = wx.TextCtrl(panel, -1)
@@ -1508,118 +1516,118 @@ class MachineSetup(wx.Dialog):
 		sizer.Add(self.inix, (0, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
 
-		text2 = wx.StaticText(panel, -1, 'Initial Y posision')
+		text2 = wx.StaticText(panel, -1, lng.INI_Y)
 		sizer.Add(text2, (1, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.iniy = wx.TextCtrl(panel, -1)
 		self.iniy.SetValue(str(INI_Y))
 		sizer.Add(self.iniy, (1, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text3 = wx.StaticText(panel, -1, 'Initial Z posision')
+		text3 = wx.StaticText(panel, -1, lng.INI_Z)
 		sizer.Add(text3, (2, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.iniz = wx.TextCtrl(panel, -1)
 		self.iniz.SetValue(str(INI_Z))
 		sizer.Add(self.iniz, (2, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text4 = wx.StaticText(panel, -1, 'Moving height')
+		text4 = wx.StaticText(panel, -1, lng.MOVE_HEIGHT)
 		sizer.Add(text4, (3, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.moveh = wx.TextCtrl(panel, -1)
 		self.moveh.SetValue(str(MOVE_HEIGHT))
 		sizer.Add(self.moveh, (3, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text5 = wx.StaticText(panel, -1, 'XY Speed')
+		text5 = wx.StaticText(panel, -1, lng.XY_SPEED)
 		sizer.Add(text5, (4, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.xyspeed = wx.TextCtrl(panel, -1)
 		self.xyspeed.SetValue(str(XY_SPEED))
 		sizer.Add(self.xyspeed, (4, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text6 = wx.StaticText(panel, -1, 'Z speed')
+		text6 = wx.StaticText(panel, -1, lng.Z_SPEED)
 		sizer.Add(text6, (5, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.zspeed = wx.TextCtrl(panel, -1)
 		self.zspeed.SetValue(str(Z_SPEED))
 		sizer.Add(self.zspeed, (5, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text7 = wx.StaticText(panel, -1, 'Cutting depth')
+		text7 = wx.StaticText(panel, -1, lng.CUT_DEPTH)
 		sizer.Add(text7, (6, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.cutdep = wx.TextCtrl(panel, -1)
 		self.cutdep.SetValue(str(CUT_DEPTH))
 		sizer.Add(self.cutdep, (6, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text8 = wx.StaticText(panel, -1, 'Tool diameter')
+		text8 = wx.StaticText(panel, -1, lng.TOOL_D)
 		sizer.Add(text8, (7, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.toold = wx.TextCtrl(panel, -1)
 		self.toold.SetValue(str(TOOL_D))
 		sizer.Add(self.toold, (7, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text9 = wx.StaticText(panel, -1, 'Drill depth')
+		text9 = wx.StaticText(panel, -1, lng.DRILL_DEPTH)
 		sizer.Add(text9, (8, 0), flag=wx.TOP | wx.LEFT, border=10)
 
 		self.drilldep = wx.TextCtrl(panel, -1)
 		self.drilldep.SetValue(str(DRILL_DEPTH))
 		sizer.Add(self.drilldep, (8, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text10 = wx.StaticText(panel, -1, 'Drill XY speed')
+		text10 = wx.StaticText(panel, -1, lng.DRILL_XY_SPEED)
 		sizer.Add(text10, (9, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.drillspeed = wx.TextCtrl(panel, -1)
 		self.drillspeed.SetValue(str(DRILL_SPEED))
 		sizer.Add(self.drillspeed, (9, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		drill_z_txt = wx.StaticText(panel, -1, 'Drill down speed')
+		drill_z_txt = wx.StaticText(panel, -1, lng.DRILL_Z_SPEED)
 		sizer.Add(drill_z_txt, (10, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.drillzspeed = wx.TextCtrl(panel, -1)
 		self.drillzspeed.SetValue(str(DRILL_Z_SPEED))
 		sizer.Add(self.drillzspeed, (10, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text11 = wx.StaticText(panel, -1, 'Drill diameter')
+		text11 = wx.StaticText(panel, -1, lng.DRILL_D)
 		sizer.Add(text11, (11, 0), flag= wx.LEFT | wx.TOP, border=10)
 
 		self.drilld = wx.TextCtrl(panel, -1)
 		self.drilld.SetValue(str(DRILL_D))
 		sizer.Add(self.drilld, (11, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text12 = wx.StaticText(panel, -1, 'Edge depth')
+		text12 = wx.StaticText(panel, -1, lng.EDGE_DEPTH)
 		sizer.Add(text12, (12, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.edgedep = wx.TextCtrl(panel, -1)
 		self.edgedep.SetValue(str(EDGE_DEPTH))
 		sizer.Add(self.edgedep, (12, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text13 = wx.StaticText(panel, -1, 'Edge tool diameter')
+		text13 = wx.StaticText(panel, -1, lng.EDGE_D)
 		sizer.Add(text13, (13, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.edged = wx.TextCtrl(panel, -1)
 		self.edged.SetValue(str(EDGE_TOOL_D))
 		sizer.Add(self.edged, (13, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text14 = wx.StaticText(panel, -1, 'Edge cutting speed')
+		text14 = wx.StaticText(panel, -1, lng.EDGE_XY_SPEED)
 		sizer.Add(text14, (14, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.edgespeed = wx.TextCtrl(panel, -1)
 		self.edgespeed.SetValue(str(EDGE_SPEED))
 		sizer.Add(self.edgespeed, (14, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text15 = wx.StaticText(panel, -1, 'Edge Z speed')
+		text15 = wx.StaticText(panel, -1, lng.EDGE_Z_SPEED)
 		sizer.Add(text15, (15, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.edgezspeed = wx.TextCtrl(panel, -1)
 		self.edgezspeed.SetValue(str(EDGE_Z_SPEED))
 		sizer.Add(self.edgezspeed, (15, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text16 = wx.StaticText(panel, -1, 'Z step')
+		text16 = wx.StaticText(panel, -1, lng.Z_STEP)
 		sizer.Add(text16, (16, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.zstep = wx.TextCtrl(panel, -1)
 		self.zstep.SetValue(str(Z_STEP))
 		sizer.Add(self.zstep, (16, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		button0 = wx.Button(panel, -1, 'Save to config file', size=(-1, 30))
+		button0 = wx.Button(panel, -1, lng.SAVE2CONF, size=(-1, 30))
 		sizer.Add(button0, (18, 0), (1, 1),  wx.LEFT, 10)
 
-		button1 = wx.Button(panel, -1, 'Temporally Apply', size=(-1, 30))
+		button1 = wx.Button(panel, -1, lng.TEMP_APPLY, size=(-1, 30))
 		sizer.Add(button1, (18, 1), (1, 1),  wx.LEFT, 10)
 
-		button2 = wx.Button(panel, -1, 'Close', size=(-1, 30))
+		button2 = wx.Button(panel, -1, lng.CLOSE, size=(-1, 30))
 		sizer.Add(button2, (18, 2), (1, 1),  wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
 		sizer.AddGrowableCol(2)
 
@@ -1683,111 +1691,111 @@ class ConvSetup(wx.Dialog):
 		panel = wx.Panel(self, -1)
 		sizer = wx.GridBagSizer(0, 0)
 
-		text1 = wx.StaticText(panel, -1, 'Front data color')
+		text1 = wx.StaticText(panel, -1, lng.FRONT_COLOR)
 		sizer.Add(text1, (0, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.gerber_color = wx.ComboBox(panel, -1, choices=gCOLORS, style=wx.CB_READONLY)
 		self.gerber_color.SetValue(str(GERBER_COLOR))
 		sizer.Add(self.gerber_color, (0, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		back_color_txt = wx.StaticText(panel, -1, 'Back data color')
+		back_color_txt = wx.StaticText(panel, -1, lng.BACK_COLOR)
 		sizer.Add(back_color_txt, (1, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.back_color = wx.ComboBox(panel, -1, choices=gCOLORS, style=wx.CB_READONLY)
 		self.back_color.SetValue(str(BACK_COLOR))
 		sizer.Add(self.back_color, (1, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text2 = wx.StaticText(panel, -1, 'Drill data color')
+		text2 = wx.StaticText(panel, -1, lng.DRILL_COLOR)
 		sizer.Add(text2, (2, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.drill_color = wx.ComboBox(panel, -1, choices=gCOLORS, style=wx.CB_READONLY)
 		self.drill_color.SetValue(str(DRILL_COLOR))
 		sizer.Add(self.drill_color, (2, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text3 = wx.StaticText(panel, -1, 'Edge data color')
+		text3 = wx.StaticText(panel, -1, lng.EDGE_COLOR)
 		sizer.Add(text3, (3, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.edge_color = wx.ComboBox(panel, -1, choices=gCOLORS, style=wx.CB_READONLY)
 		self.edge_color.SetValue(str(EDGE_COLOR))
 		sizer.Add(self.edge_color, (3, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text4 = wx.StaticText(panel, -1, 'Front Contour color')
+		text4 = wx.StaticText(panel, -1, lng.FRONT_CONT_COLOR)
 		sizer.Add(text4, (4, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.contour_color = wx.ComboBox(panel, -1, choices=gCOLORS, style=wx.CB_READONLY)
 		self.contour_color.SetValue(str(CONTOUR_COLOR))
 		sizer.Add(self.contour_color, (4, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		back_contour_text = wx.StaticText(panel, -1, 'Back Contour color')
+		back_contour_text = wx.StaticText(panel, -1, lng.BACK_CONT_COLOR)
 		sizer.Add(back_contour_text, (5, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.back_contour_color = wx.ComboBox(panel, -1, choices=gCOLORS, style=wx.CB_READONLY)
 		self.back_contour_color.SetValue(str(CONTOUR_BACK_COLOR))
 		sizer.Add(self.back_contour_color, (5, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text5 = wx.StaticText(panel, -1, 'Front file extension')
+		text5 = wx.StaticText(panel, -1, lng.FRONT_EXT)
 		sizer.Add(text5, (6, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.gerber_ext = wx.TextCtrl(panel, -1)
 		self.gerber_ext.SetValue(str(GERBER_EXT))
 		sizer.Add(self.gerber_ext, (6, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		back_ex_txt = wx.StaticText(panel, -1, 'Back file extension')
+		back_ex_txt = wx.StaticText(panel, -1, lng.BACK_EXT)
 		sizer.Add(back_ex_txt, (7, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.back_ext = wx.TextCtrl(panel, -1)
 		self.back_ext.SetValue(str(BACK_EXT))
 		sizer.Add(self.back_ext, (7, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text6 = wx.StaticText(panel, -1, 'Drill file extension')
+		text6 = wx.StaticText(panel, -1, lng.DRILL_EXT)
 		sizer.Add(text6, (8, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.drill_ext = wx.TextCtrl(panel, -1)
 		self.drill_ext.SetValue(str(DRILL_EXT))
 		sizer.Add(self.drill_ext, (8, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text7 = wx.StaticText(panel, -1, 'Edge file extension')
+		text7 = wx.StaticText(panel, -1, lng.EDGE_EXT)
 		sizer.Add(text7, (9, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.edge_ext = wx.TextCtrl(panel, -1)
 		self.edge_ext.SetValue(str(EDGE_EXT))
 		sizer.Add(self.edge_ext, (9, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text8 = wx.StaticText(panel, -1, 'Gcode fornt file extension')
+		text8 = wx.StaticText(panel, -1, lng.FRONT_GCODE_EXT)
 		sizer.Add(text8, (10, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.gcode_ext = wx.TextCtrl(panel, -1)
 		self.gcode_ext.SetValue(str(GCODE_EXT))
 		sizer.Add(self.gcode_ext, (10, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		back_g_txt = wx.StaticText(panel, -1, 'Gcode back file extension')
+		back_g_txt = wx.StaticText(panel, -1, lng.BACK_GCODE_EXT)
 		sizer.Add(back_g_txt, (11, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.back_g_ext = wx.TextCtrl(panel, -1)
 		self.back_g_ext.SetValue(str(GBACK_EXT))
 		sizer.Add(self.back_g_ext, (11, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text9 = wx.StaticText(panel, -1, 'Gcode Drill file extension')
+		text9 = wx.StaticText(panel, -1, lng.DRILL_GCODE_EXT)
 		sizer.Add(text9, (12, 0), flag=wx.TOP | wx.LEFT, border=10)
 		self.gdrill_ext = wx.TextCtrl(panel, -1)
 		self.gdrill_ext.SetValue(str(GDRILL_EXT))
 		sizer.Add(self.gdrill_ext, (12, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text10 = wx.StaticText(panel, -1, 'Gcode Edge file extension')
+		text10 = wx.StaticText(panel, -1, lng.EDGE_GCODE_EXT)
 		sizer.Add(text10, (13, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.gedge_ext = wx.TextCtrl(panel, -1)
 		self.gedge_ext.SetValue(str(GEDGE_EXT))
 		sizer.Add(self.gedge_ext, (13, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text12 = wx.StaticText(panel, -1, 'G code left X')
+		text12 = wx.StaticText(panel, -1, lng.G_LEFT_X)
 		sizer.Add(text12, (14, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.leftx = wx.TextCtrl(panel, -1)
 		self.leftx.SetValue(str(LEFT_X))
 		sizer.Add(self.leftx, (14, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		text13 = wx.StaticText(panel, -1, 'G code lower Y')
+		text13 = wx.StaticText(panel, -1, lng.G_LOWER_Y)
 		sizer.Add(text13, (15, 0), flag= wx.LEFT | wx.TOP, border=10)
 		self.lowy = wx.TextCtrl(panel, -1)
 		self.lowy.SetValue(str(LOWER_Y))
 		sizer.Add(self.lowy, (15, 1), (1, 3), wx.TOP | wx.EXPAND, 5)
 
-		radioList_cut = ['line only', 'all']
-		self.rb_cut = wx.RadioBox(panel, label="Scrape Front", choices=radioList_cut, majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		radioList_cut = [lng.LINE_ONLY, lng.ALL_SCRAPE]
+		self.rb_cut = wx.RadioBox(panel, label=lng.SCRAPE_FRONT, choices=radioList_cut, majorDimension=3, style=wx.RA_SPECIFY_COLS)
 		self.rb_cut.SetSelection(int(CUT_ALL_FRONT))
 		sizer.Add(self.rb_cut, (16, 0), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
-		self.rb_cut_back = wx.RadioBox(panel, label="Scrape Back", choices=radioList_cut, majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		self.rb_cut_back = wx.RadioBox(panel, label=lng.SCRAPE_BACK, choices=radioList_cut, majorDimension=3, style=wx.RA_SPECIFY_COLS)
 		self.rb_cut_back.SetSelection(int(CUT_ALL_BACK))
 		sizer.Add(self.rb_cut_back, (16, 1), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		self.ptn_shift = wx.CheckBox(panel, -1, 'Pattern Shift', (10, 10))
+		self.ptn_shift = wx.CheckBox(panel, -1, lng.PATTERN_SHIFT, (10, 10))
 		self.ptn_shift.SetValue(int(PATTERN_SHIFT))
 		sizer.Add(self.ptn_shift, (16, 2), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 		#text_cut = wx.StaticText(panel, -1, 'Scrape Exteria margin Ratio')
@@ -1797,25 +1805,25 @@ class ConvSetup(wx.Dialog):
 		#sizer.Add(self.ccut_margin, (17, 1), (1, 1), wx.TOP | wx.EXPAND, 5)
 
 		radioList = ['mm', 'inch']
-		self.rb1 = wx.RadioBox(panel, label="unit of Input file", choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		self.rb1 = wx.RadioBox(panel, label=lng.INPUT_UNIT, choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
 		self.rb1.SetSelection(int(IN_INCH_FLAG))
 		sizer.Add(self.rb1, (18, 0), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		self.rb2 = wx.RadioBox(panel, label="unit of Output file", choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		self.rb2 = wx.RadioBox(panel, label=lng.OUTPUT_UNIT, choices=radioList, majorDimension=3, style=wx.RA_SPECIFY_COLS)
 		self.rb2.SetSelection(int(OUT_INCH_FLAG))
 		sizer.Add(self.rb2, (18, 1), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		self.cb1 = wx.CheckBox(panel, -1, 'Enable M code', (10, 10))
+		self.cb1 = wx.CheckBox(panel, -1, lng.ENV_MCODE, (10, 10))
 		self.cb1.SetValue(int(MCODE_FLAG))
 		sizer.Add(self.cb1, (18, 2), (1, 1), wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT , 10)
 
-		button0 = wx.Button(panel, -1, 'Save to config file', size=(-1, 30))
+		button0 = wx.Button(panel, -1, lng.SAVE2CONF, size=(-1, 30))
 		sizer.Add(button0, (20, 0), (1, 1),  wx.LEFT, 10)
 
-		button1 = wx.Button(panel, -1, 'Temporally Apply', size=(-1, 30))
+		button1 = wx.Button(panel, -1, lng.TEMP_APPLY, size=(-1, 30))
 		sizer.Add(button1, (20, 1), (1, 1),  wx.LEFT, 10)
 
-		button2 = wx.Button(panel, -1, 'Close', size=(-1, 30))
+		button2 = wx.Button(panel, -1, lng.CLOSE, size=(-1, 30))
 		sizer.Add(button2, (20, 2), (1, 1),  wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
 		sizer.AddGrowableCol(2)
 
@@ -1924,11 +1932,13 @@ class DRILL_LINE:
 
 #functions
 def main():
+	global lng
 	if len(sys.argv) > 1 and sys.argv[1]:
 		read_config(sys.argv[1])
 	else:
 		read_config(CONFIG_FILE)
 	set_unit()
+	lng = get_plugin(LANG_DIR, LANG)
 	#app = wx.App()
 	#app = wx.App(redirect=True)
 	app = wx.App(redirect=False)
@@ -1988,7 +1998,9 @@ def contour2draw_back(header):
 		gDRAWCONTOUR_BACK.append(DRAWPOLY(polygon.points,"",0))
 
 def save_config():
-	config_data ="#Data files\n"
+	config_data = "#Display Language\n"
+	config_data += "LANG = \"" + str(LANG) + "\"\n"
+	config_data += "#Data files\n"
 	config_data += "GERBER_DIR = \"" + str(GERBER_DIR) + "\"\n"
 	config_data += "FRONT_FILE = \"" + str(FRONT_FILE) + "\"\n"
 	config_data += "BACK_FILE = \"" + str(BACK_FILE) + "\"\n"
@@ -2037,6 +2049,7 @@ def save_config():
 	#config_data += "CUT_ALL_BACK = " + str(CUT_ALL_BACK) + "\n"
 	#Optional
 	config_data += "PATTERN_SHIFT = " + str(PATTERN_SHIFT) + "\n"
+	config_data += "USE_SEGMENT = " + str(USE_SEGMENT) + "\n"
 	#######################
 	config_data +="\n#Machine Setting\n"
 	config_data += "INI_X = " + str(INI_X) + "\n"
@@ -2063,6 +2076,7 @@ def save_config():
 	out.write(config_data)
 	out.close()
 def read_config(config_file):
+	global LANG,USE_SEGMENT
 	global INI_X, INI_Y, INI_Z, MOVE_HEIGHT, OUT_INCH_FLAG, IN_INCH_FLAG, MCODE_FLAG, XY_SPEED, Z_SPEED, LEFT_X, LOWER_Y, DRILL_SPEED, DRILL_Z_SPEED, DRILL_DEPTH, CUT_DEPTH, TOOL_D, DRILL_D, EDGE_TOOL_D, EDGE_DEPTH, EDGE_SPEED, EDGE_Z_SPEED, Z_STEP, GERBER_EXT, DRILL_EXT, EDGE_EXT, GCODE_EXT, GDRILL_EXT, GEDGE_EXT,DRILL_ENDMILL
 	global GERBER_COLOR, DRILL_COLOR, EDGE_COLOR , CONTOUR_COLOR,CONTOUR_BACK_COLOR
 	global GERBER_DIR,FRONT_FILE,BACK_FILE,DRILL_FILE,EDGE_FILE,MIRROR_FRONT,MIRROR_BACK,MIRROR_DRILL,MIRROR_EDGE,ROT_ANG
@@ -2072,7 +2086,7 @@ def read_config(config_file):
 	try:
 		f = open(config_file,'r')
 	except IOError, (errno, strerror):
-		print "Unable to open the file =" + config_file + "\n"
+		print lng.OPEN_ERROR + config_file + "\n"
 	else:
 		while 1:
 			config = f.readline()
@@ -2080,6 +2094,8 @@ def read_config(config_file):
 				break
 			cfg = re.search("([A-Z\_]+)[\d\s\ ]*\=[\ \"]*([^\ \"\n\r]+)\"*",config)
 			if (cfg):
+				if(cfg.group(1)=="LANG"):
+					LANG = str(cfg.group(2))
 				if(cfg.group(1)=="INI_X"):
 					INI_X = float(cfg.group(2))
 				if(cfg.group(1)=="INI_Y"):
@@ -2194,7 +2210,8 @@ def read_config(config_file):
 					PATTERN_SHIFT = int(cfg.group(2))
 				if(cfg.group(1)=="DRILL_ENDMILL"):
 					DRILL_ENDMILL = int(cfg.group(2))
-
+				if(cfg.group(1)=="USE_SEGMENT"):
+					USE_SEGMENT = int(cfg.group(2))
 		f.close()
 
 def drill2gcode(gcode_header,elements):
@@ -2218,5 +2235,24 @@ def edge2gcode(gcode_header,elements):
 		z_depth = j*z_step
 		gcode_header.add_polygon(z_depth,elements, EDGE_SPEED, EDGE_Z_SPEED)
 		j += 1
+
+def get_plugin(dir,name):
+	cwd = os.getcwd()
+	moduledir = os.path.join(cwd,dir)
+	plugin_name = name + ".py"
+	plugin = load_plugin(moduledir,plugin_name)
+	return plugin
+
+def load_module(module_name,basepath):
+	f,n,d = imp.find_module(module_name,[basepath])
+	return imp.load_module(module_name,f,n,d)
+def load_plugin(basepath,plugin_file):
+	try:
+		m = load_module(plugin_file.replace(".py",""),basepath)
+		return m
+	except ImportError:
+		pass
+	return
+
 if __name__ == "__main__":
 	main()

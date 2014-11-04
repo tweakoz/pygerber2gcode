@@ -45,6 +45,7 @@ DRILL_TYPE = 1
 PATTERN_SHIFT = 1
 LEFT_X = 5.0
 LOWER_Y = 5.0
+USE_SEGMENT = 0
 #For file
 OUT_INCH_FLAG = 0
 IN_INCH_FLAG = 1
@@ -285,7 +286,7 @@ def read_config(config_file):
 	global GERBER_DIR,FRONT_FILE,BACK_FILE,DRILL_FILE,EDGE_FILE,MIRROR_FRONT,MIRROR_BACK,MIRROR_DRILL,MIRROR_EDGE,ROT_ANG
 	global OUT_DIR,OUT_FRONT_FILE,OUT_BACK_FILE,OUT_DRILL_FILE,OUT_EDGE_FILE,OUT_ALL_FILE
 	global CUT_ALL_FRONT, CUT_ALL_BACK, CUT_STEP_R_FRONT,CUT_STEP_R_BACK, CUT_MAX_FRONT, CUT_MAX_BACK,CUT_MARGIN_R,PATTERN_SHIFT,DRILL_TYPE
-
+	global USE_SEGMENT
 	try:
 		f = open(config_file,'r')
 	except IOError, (errno, strerror):
@@ -413,7 +414,8 @@ def read_config(config_file):
 					MCODE_FLAG = int(cfg.group(2))
 				if(cfg.group(1)=="DRILL_ENDMILL"):
 					DRILL_ENDMILL = int(cfg.group(2))
-
+				if(cfg.group(1)=="USE_SEGMENT"):
+					USE_SEGMENT = int(cfg.group(2))
 		f.close()
 def drill2gcode(gcode_header,elements):
 	z_step_n = int(DRILL_DEPTH/Z_STEP) + 1
